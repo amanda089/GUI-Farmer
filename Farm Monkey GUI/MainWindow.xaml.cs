@@ -54,7 +54,7 @@ namespace FarmMonkey_GUI
 
             // Timers collection Binding
             PlantTimers.ItemsSource = _plantTimers;
-            
+
         }
 
         /// <summary>
@@ -181,30 +181,41 @@ namespace FarmMonkey_GUI
                 // Arrow Keys
                 (key >= (int)Key.Left && key <= (int)Key.Down) ||
                 // Backspace
-                key == (int)Key.Back || 
+                key == (int)Key.Back ||
                 // Delete
                 key == (int)Key.Delete
                 );
         }
 
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
             string name = ((Button)sender).Name;
 
             if (name == doHarvesting.Name)
             {
-
+                await HarvestingAsync();
             }
             //==================================================================
             else if (name == doPlanting.Name)
             {
-
+                await PlantingAsync();
             }
             //==================================================================
             else if (name == doWatering.Name)
             {
-
+                await Task.Run(new Action(() =>
+                {
+                    var tmp = from doodad in getMyDoodads()
+                              where (from skill in doodad.getUseSkills()
+                                     where skill.id == 13265
+                                     select skill).Count() > 0
+                              select doodad;
+                    tmp.ToList().ForEach(doodad =>
+                    {
+                        Host.CollectItemsAtFarm(doodad.phaseId, 13625, doodad.plantZoneId);
+                    });
+                }));
             }
             //==================================================================
             else if (name == btnTimers.Name)
